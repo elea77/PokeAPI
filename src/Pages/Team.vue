@@ -7,42 +7,61 @@
               <li>
                   <router-link v-bind:to="'/pokedex'" class="titles-nav">Pokedex</router-link>
                   <router-link v-bind:to="'/generation'" class="titles-nav">Générations</router-link>
-                  <router-link v-bind:to="'/team'" class="titles-nav">Team</router-link>
+                  <router-link v-bind:to="'/monpokemon'" class="titles-nav">Mon Pokemon</router-link>
               </li>
           </ul>
       </nav>
       <br><br>
       <div>
-        <h1>Créer votre team !</h1>
-        <a id="scrollButton" href="#corps" class="button">Créer sa team</a>
+        <h1>Découvrir mon Pokemon</h1>
+        <a id="scrollButton" href="#corps" class="button">Voir mon Pokemon</a>
       </div>
     </div>
-      <div id="corps">
+      <div id="corps" :style="{'background-image': 'url(' + require('@/assets/img/fond_miaouss2.png') + ')'}">
         <nav id="navbar" class="nav">
           <ul>
             <li><a :href="$router.resolve('/').href"><img :src="require(`@/assets/img/logo-pokemon.png`)" alt="" class="logo"></a></li>
             <li>
               <router-link v-bind:to="'/pokedex'" class="titles-nav">Pokedex</router-link>
               <router-link v-bind:to="'/generation'" class="titles-nav">Générations</router-link>
-              <router-link v-bind:to="'/team'" class="titles-nav">Team</router-link>
+              <router-link v-bind:to="'/monpokemon'" class="titles-nav">Mon Pokemon</router-link>
             </li>
           </ul>
         </nav><br><br>
-        <h2>Team Pokemon</h2><br><br>
+        <h2>Ton Pokemon est ...</h2><br><br>
         <div id="app">
-          <div id="case"  v-for="pokemon in pokemons" :key="pokemon">
-            <div class="infos"><br>
-              <h4>#{{pokemon.id}}</h4>
-              <h3 id="name">{{pokemon.name}}</h3><br>
-            </div>
-            <div class="image">
-              <router-link v-bind:to="'/pokemon/' + pokemon.id"><img id="image" :src="`https://assets.pokemon.com/assets/cms2/img/pokedex/full/${padLeft(pokemon.id)}.png`" v-bind:alt="pokemon.name" srcset=""></router-link>
-            </div>
-          </div>
-      </div>
-      </div>
+          <h3 id="name">{{pokemon.name}} !</h3><br><br><br><br>
+          <router-link v-bind:to="'/pokemon/' + pokemon.id"><img id="image" :src="`https://assets.pokemon.com/assets/cms2/img/pokedex/full/${pokemon.id}.png`" v-bind:alt="pokemon.name" srcset=""></router-link>
+        </div>
+    </div>
   </div>
 </template>
+
+
+<script>
+import axios from 'axios';
+export default {
+    name: 'app',
+    data() {
+        return{
+          pokemon: [],
+          loading: true,
+          errored: false,
+          types: []
+        }
+	},
+  mounted() {
+    const  x = Math.floor((Math.random() * 802) + 1)
+    axios
+      .get('https://pokeapi.co/api/v2/pokemon/' + x)
+      .then(response => {
+        this.pokemon = response.data,
+        this.types = response.data.types
+      })
+  },
+  }
+
+</script>
 
 
 <style scoped>
@@ -145,6 +164,19 @@ nav ul li a {
 
 /* Corps */
 
+#corps {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: left;
+  z-index: 1;
+  width: 100%;
+  height: 100vh;
+}
+
+#app {
+  width: 100%;
+}
+
 h2 {
 	text-align: center;
 	font-size: 270%;
@@ -154,61 +186,24 @@ h2 {
 	margin: 0;
 }
 
-
-#app {
-  width: 100%;
-  display: inline-flex;
-  justify-content: space-around;
-  /* position: relative; */
-  /* position: absolute;  */
-  /* top: 32vh; */
+#name {
+  text-transform: uppercase;
+  float: right;
+  margin-right: 20%;
+  font-size: 220%;
 }
 
-
 #image {
-    width: 150px;
+    width: 25%;
+    float: right;
+    margin-right: 15%;
 }
 
 #image:hover {
-  transform:scale(1.55); 
+  transform:scale(1.05); 
 }
 
 
 
 </style>
 
-
-
-<script>
-  
-export default {
-    name: 'app',
-    data() {
-        return{
-		pokemons: [],
-		info: null,
-		loading: true,
-		imgURL: null,
-		types: [],
-		PokemonSpecies: []
-        }
-	},
-	methods: {
-	padLeft(num, by = 3) {
-		return ("0".repeat(by) + num).substr(-3)
-	},
-    async getPokemon() {
-      const response = await this.$http.get("https://pokeapi.co/api/v2/pokemon?random?n=3&limit=5");
-      this.pokemons = await Promise.all(response.data.results.map(async ({ url }) => {
-        const pokemon = await this.$http.get(url);
-        return pokemon.data
-      }));
-	},
-  },
-  mounted() {
-	this.getPokemon()
-  },
-    
-}
-  
-</script>
